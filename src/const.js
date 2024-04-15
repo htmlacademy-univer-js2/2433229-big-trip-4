@@ -6,6 +6,13 @@ const OFFERS_COUNT = 5;
 const IMAGE_COUNT = 5;
 const IMAGES = [];
 
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past'
+};
+
 const DESTINATIONS = [
   'Amsterdam',
   'Chamonix',
@@ -43,4 +50,4 @@ for (let i = 0; i < IMAGE_COUNT; i++) {
   IMAGES.push(`${IMAGE_URL}${getRandomValue()}`);
 }
 
-export {POINTS_COUNT, CITIES_COUNT, OFFERS_COUNT, IMAGE_COUNT, POINTS_TYPE, DESTINATIONS, OFFERS, DESCRIPTION, IMAGE_URL, IMAGES};
+export {POINTS_COUNT, CITIES_COUNT, OFFERS_COUNT, IMAGE_COUNT, POINTS_TYPE, DESTINATIONS, OFFERS, DESCRIPTION, IMAGE_URL, IMAGES, FilterType};
