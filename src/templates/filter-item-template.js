@@ -6,5 +6,5 @@ function createFilterItemTemplate (filter) {
 }
 function isAvailible(filter) {
   return filter.exists ? '' : 'disabled';
-} 
+}
 export {createFilterItemTemplate};
