@@ -72,3 +72,4 @@ export default class UiBlocker {
     this.#element.classList.remove('ui-blocker--on');
   };
 }
+
