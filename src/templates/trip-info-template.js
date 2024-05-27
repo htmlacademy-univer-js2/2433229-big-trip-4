@@ -10,4 +10,3 @@ function createTripInfoTemplate () {
   </section>`;
 }
 export {createTripInfoTemplate};
-  
