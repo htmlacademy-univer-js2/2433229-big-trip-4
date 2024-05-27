@@ -11,9 +11,8 @@ export default class PointView extends AbstractView{
     this.#favouriteBtnClick = onFavouriteClick;
     this.element.querySelector('.event__favorite-icon').addEventListener('click', this.#clickFavouriteBtnHandler);
   }
-
-    get template() {
-      return createPointTemplate(this.#point);
+  get template() {
+    return createPointTemplate(this.#point);
   }
 
   #clickFavouriteBtnHandler = (evt) => {
