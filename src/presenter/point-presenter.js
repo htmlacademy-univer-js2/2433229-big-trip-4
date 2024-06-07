@@ -8,18 +8,19 @@ export default class PointPresenter {
   #container = null;
   #destinationsModel = null;
   #offersModel = null;
-  #onDataChange = null;
-  #onModeChange = null;
+  #handleDataChange = null;
+  #handleModeChange = null;
   #point = null;
   #pointComponent = null;
   #pointEditComponent = null;
   #mode = PointMode.DEFAULT;
+  
   constructor({ container, destinationsModel, offersModel, onDataChange, onModeChange }) {
     this.#container = container;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
-    this.#onDataChange = onDataChange;
-    this.#onModeChange = onModeChange;
+    this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init(point) {
@@ -38,7 +39,7 @@ export default class PointPresenter {
       destinations: this.#destinationsModel.destinations,
       pointOffers: this.#offersModel.offers,
       onRollUpPointClick: this.#formRollUpClickHandler,
-      onSubmitForm: this.#formSubmitHandler,
+      onFormSubmit: this.#formSubmitHandler,
       onCancelFormClick: this.#cancelClickHandler
     });
     if (previousPointComponent === null || previousPointEditComponent === null) {
@@ -102,7 +103,7 @@ export default class PointPresenter {
   #replacePointToForm = () => {
     replace(this.#pointEditComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
-    this.#onModeChange();
+    this.#handleModeChange();
     this.#mode = PointMode.EDIT;
   };
 
@@ -134,7 +135,7 @@ export default class PointPresenter {
   #formSubmitHandler = (updatePoint) => {
     const isMinor = isBigDifference(updatePoint, this.#point);
     if (isMinor) {
-      this.#onDataChange(
+      this.#handleDataChange(
         EditingType.UPDATE_POINT,
         isMinor ? UpdateType.MINOR : UpdateType.PATCH,
         updatePoint
@@ -146,7 +147,7 @@ export default class PointPresenter {
   };
 
   #cancelClickHandler = (event) => {
-    this.#onDataChange(
+    this.#handleDataChange(
       EditingType.DELETE_POINT,
       UpdateType.MINOR,
       event
@@ -154,7 +155,7 @@ export default class PointPresenter {
   };
 
   #favoritePointClickHandler = () => {
-    this.#onDataChange(
+    this.#handleDataChange(
       EditingType.UPDATE_POINT,
       UpdateType.PATCH,
       {

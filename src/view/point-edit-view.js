@@ -10,22 +10,22 @@ export default class PointEditView extends AbstractStatefulView {
   #point = null;
   #destinations = null;
   #pointOffers = null;
-  #onRollUpPointClick = null;
+  #handleRollUpPointClick = null;
   #isCreating = null;
-  #onSubmitForm = null;
-  #onCancelFormClick = null;
+  #handleFormSubmit = null;
+  #handleCancelFormClick = null;
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor({point = EmptyPoint, destinations, pointOffers, isCreating = false, onRollUpPointClick, onSubmitForm, onCancelFormClick}) {
+  constructor({point = EmptyPoint, destinations, pointOffers, isCreating = false, onRollUpPointClick, onFormSubmit, onCancelFormClick}) {
     super();
     this.#point = point;
     this.#destinations = destinations;
     this.#pointOffers = pointOffers;
     this.#isCreating = isCreating;
-    this.#onRollUpPointClick = onRollUpPointClick;
-    this.#onSubmitForm = onSubmitForm;
-    this.#onCancelFormClick = onCancelFormClick;
+    this.#handleRollUpPointClick = onRollUpPointClick;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleCancelFormClick = onCancelFormClick;
 
     this._setState(PointEditView.parsePointToState({point}));
     this._restoreHandlers();
@@ -42,17 +42,17 @@ export default class PointEditView extends AbstractStatefulView {
 
   #rollUpPointClickHandler = (event) => {
     event.preventDefault();
-    this.#onRollUpPointClick();
+    this.#handleRollUpPointClick();
   };
 
   #submitFormHandler = (event) => {
     event.preventDefault();
-    this.#onSubmitForm(this._state.point);
+    this.#handleFormSubmit(this._state.point);
   };
 
   #cancelClickHandler = (event) => {
     event.preventDefault();
-    this.#onCancelFormClick(PointEditView.parseStateToPoint(this._state.point));
+    this.#handleCancelFormClick(PointEditView.parseStateToPoint(this._state.point));
   };
 
   static parsePointToState(point) {

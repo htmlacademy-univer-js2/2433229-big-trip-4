@@ -1,11 +1,5 @@
 import { isPointPast, isPointPresent, isPointFuture, sortByDay, sortByEvent, sortByOffers, sortByPrice, sortByTime } from './utils';
 
-export const Duration = {
-  HOUR: 5,
-  DAY: 5,
-  MINUTE: 59
-};
-
 export const POINTS_TYPES = [
   'taxi',
   'bus',
@@ -86,9 +80,9 @@ export const EditingType = {
 
 export const EmptyListText = {
   [FilterTypes.EVERYTHING]: 'Click New Event to create your first point',
-  [FilterTypes.FUTURE]: 'There are no future events',
-  [FilterTypes.PRESENT]: 'There are no present events',
-  [FilterTypes.PAST]: 'There are no past events'
+  [FilterTypes.FUTURE]: 'There are no future events now',
+  [FilterTypes.PRESENT]: 'There are no present events now',
+  [FilterTypes.PAST]: 'There are no past events now'
 };
 
 export const ButtonText = {
@@ -104,7 +98,7 @@ export const TimeLimit = {
   UPPER_LIMIT: 1000
 };
 
-export const FilterHasPoints = {
+export const filterPointsByType = {
   [FilterTypes.EVERYTHING]: () => true,
   [FilterTypes.FUTURE]: (points) => points.some((point) => isPointFuture(point)),
   [FilterTypes.PRESENT]: (points) => points.some((point) => isPointPresent(point)),
