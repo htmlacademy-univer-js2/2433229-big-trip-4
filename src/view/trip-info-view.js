@@ -1,26 +1,30 @@
 import AbstractView from '../framework/view/abstract-view';
 import { createTripInfoTemplate } from '../templates/trip-info-template';
-import { getTripInfoCost, getTripInfoDuration, getTripInfoTitle } from '../utils';
-
 
 export default class TripInfoView extends AbstractView {
-  #points = null;
-  #destinations = null;
-  #offers = null;
 
-  constructor({points, destinations, offers}) {
+  #short = false;
+  #destinations = null;
+  #dateFrom = null;
+  #dateTo = null;
+  #totalCost = 0;
+
+  constructor({ short, destinations, dateFrom, dateTo, totalCost }) {
     super();
-    this.#points = points;
+    this.#short = short;
     this.#destinations = destinations;
-    this.#offers = offers;
+    this.#dateFrom = dateFrom;
+    this.#dateTo = dateTo;
+    this.#totalCost = totalCost;
   }
 
   get template() {
     return createTripInfoTemplate({
-      isEmpty: this.#points.length === 0,
-      title: getTripInfoTitle(this.#points, this.#destinations),
-      duration: getTripInfoDuration(this.#points),
-      cost: getTripInfoCost(this.#points, this.#offers)
+      short: this.#short,
+      destinations: this.#destinations,
+      dateFrom: this.#dateFrom,
+      dateTo: this.#dateTo,
+      totalCost: this.#totalCost,
     });
   }
 }

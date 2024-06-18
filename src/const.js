@@ -1,6 +1,4 @@
-import { isPointPast, isPointPresent, isPointFuture, sortByDay, sortByEvent, sortByOffers, sortByPrice, sortByTime } from './utils';
-
-export const POINTS_TYPES = [
+const POINT_TYPES = [
   'taxi',
   'bus',
   'train',
@@ -9,36 +7,27 @@ export const POINTS_TYPES = [
   'flight',
   'check-in',
   'sightseeing',
-  'restaurant'
+  'restaurant',
 ];
 
-export const DEFAULT_TYPE = 'flight';
-
-export const EmptyPoint = {
-  price: 0,
+const POINT_EMPTY = {
+  basePrice: 0,
   dateFrom: null,
   dateTo: null,
   destination: null,
   isFavorite: false,
   offers: [],
-  type: DEFAULT_TYPE
+  type: POINT_TYPES[5]
 };
 
-export const FilterTypes = {
+const FilterType = {
   EVERYTHING: 'everything',
-  PAST: 'past',
+  FUTURE: 'future',
   PRESENT: 'present',
-  FUTURE: 'future'
+  PAST: 'past',
 };
 
-export const FilterOptions = {
-  [FilterTypes.EVERYTHING]: (points) => [...points],
-  [FilterTypes.PAST]: (points) => points.filter((point) => isPointPast(point)),
-  [FilterTypes.PRESENT]: (points) => points.filter((point) => isPointPresent(point)),
-  [FilterTypes.FUTURE]: (points) => points.filter((point) => isPointFuture(point))
-};
-
-export const SortTypes = {
+const SortTypes = {
   DAY: 'day',
   EVENT: 'event',
   TIME: 'time',
@@ -46,61 +35,44 @@ export const SortTypes = {
   OFFERS: 'offers'
 };
 
-export const SortingOptions = {
-  [SortTypes.DAY]: (points) => [...points].sort(sortByDay),
-  [SortTypes.EVENT]: (points) => [...points].sort(sortByEvent),
-  [SortTypes.TIME]: (points) => [...points].sort(sortByTime),
-  [SortTypes.PRICE]: (points) => [...points].sort(sortByPrice),
-  [SortTypes.OFFERS]: (points) => [...points].sort(sortByOffers)
-};
-
-export const ACTIVE_SORT_TYPES = [
-  SortTypes.DAY,
-  SortTypes.TIME,
-  SortTypes.PRICE
+const ENABLED_SORT_TYPES = [
+  SortTypes.DAY, SortTypes.TIME, SortTypes.PRICE
 ];
 
-export const PointMode = {
-  DEFAULT: 'default',
-  EDIT: 'edit'
+const UpdateType = {
+  INIT: 'init',
+  PATCH: 'patch',
+  MINOR: 'minor',
+  MAJOR: 'major',
 };
 
-export const UpdateType = {
-  PATCH: 'PATCH',
-  MINOR: 'MINOR',
-  MAJOR: 'MAJOR',
-  INIT: 'INIT'
-};
-
-export const EditingType = {
+const UserAction = {
+  CREATE_POINT: 'create-point',
   UPDATE_POINT: 'update-point',
-  ADD_POINT: 'add-point',
-  DELETE_POINT: 'delete-point'
+  REMOVE_POINT: 'remove-point',
 };
 
-export const EmptyListText = {
-  [FilterTypes.EVERYTHING]: 'Click New Event to create your first point',
-  [FilterTypes.FUTURE]: 'There are no future events now',
-  [FilterTypes.PRESENT]: 'There are no present events now',
-  [FilterTypes.PAST]: 'There are no past events now'
+const PointMode = {
+  DEFAULT: 'default',
+  EDIT: 'edit',
 };
 
-export const ButtonText = {
-  SAVE: 'Save',
-  DELETE: 'Delete',
-  CANCEL: 'Cancel',
-  LOAD_SAVE: 'Saving...',
-  LOAD_DELETE: 'Deleting...'
-};
-
-export const TimeLimit = {
+const TimeLimit = {
   LOWER_LIMIT: 350,
-  UPPER_LIMIT: 1000
+  UPPER_LIMIT: 1000,
 };
 
-export const filterPointsByType = {
-  [FilterTypes.EVERYTHING]: () => true,
-  [FilterTypes.FUTURE]: (points) => points.some((point) => isPointFuture(point)),
-  [FilterTypes.PRESENT]: (points) => points.some((point) => isPointPresent(point)),
-  [FilterTypes.PAST]: (points) => points.some((point) => isPointPast(point))
+const Method = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
 };
+
+const Url = {
+  POINTS: 'points',
+  OFFERS: 'offers',
+  DESTINATIONS: 'destinations',
+};
+
+export { POINT_TYPES, POINT_EMPTY, FilterType, SortTypes, ENABLED_SORT_TYPES, UpdateType, UserAction, PointMode, TimeLimit, Method, Url };
