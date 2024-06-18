@@ -1,47 +1,48 @@
-import { filterPointsByType, FilterTypes, UpdateType } from '../const';
-import { remove, render, replace } from '../framework/render';
-import FilterView from '../view/filter-view';
+import { render, replace, remove } from '../framework/render.js';
+import { FilterType, UpdateType } from '../const.js';
+import { filterByPointType } from '../utils.js';
+import FilterView from '../view/filter-view.js';
 
 export default class FilterPresenter {
   #container = null;
+
+  #filterModel = null;
   #pointsModel = null;
-  #filtersModel = null;
-  #filterComponent = null;
 
-  constructor({ container, pointsModel, filtersModel }) {
+  #filterView = null;
+
+  constructor({ container, filterModel, pointsModel }) {
     this.#container = container;
+    this.#filterModel = filterModel;
     this.#pointsModel = pointsModel;
-    this.#filtersModel = filtersModel;
 
+    this.#filterModel.addObserver(this.#modelEventHandler);
     this.#pointsModel.addObserver(this.#modelEventHandler);
-    this.#filtersModel.addObserver(this.#modelEventHandler);
   }
 
   init() {
-    const previousFilterComponent = this.#filterComponent;
+    const prevFilterView = this.#filterView;
 
-    this.#filterComponent = new FilterView({
-      activeFilters: this.#getActiveFilters(this.#pointsModel.points),
-      selectedFilter: this.#filtersModel.filter,
-
-      onFilterTypeChange: this.#filterTypeChangeHandler
+    this.#filterView = new FilterView({
+      activeFilters: this.#getActiveFilters(this.#pointsModel.get()),
+      selectedFilter: this.#filterModel.get(),
+      onFilterTypeChange: this.#filterTypeChangeHandler,
     });
 
-    if (previousFilterComponent === null) {
-      render(this.#filterComponent, this.#container);
-    }
-    else {
-      replace(this.#filterComponent, previousFilterComponent);
-      remove(previousFilterComponent);
+    if (prevFilterView === null) {
+      render(this.#filterView, this.#container);
+    } else {
+      replace(this.#filterView, prevFilterView);
+      remove(prevFilterView);
     }
   }
 
   #getActiveFilters(points) {
-    return Object.values(FilterTypes).filter((type) => filterPointsByType[type](points));
+    return Object.values(FilterType).filter((type) => filterByPointType[type](points));
   }
 
   #filterTypeChangeHandler = (filterType) => {
-    this.#filtersModel.set(UpdateType.MAJOR, filterType);
+    this.#filterModel.set(UpdateType.MAJOR, filterType);
   };
 
   #modelEventHandler = (updateType) => {

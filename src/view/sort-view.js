@@ -1,26 +1,26 @@
-import AbstractView from '../framework/view/abstract-view';
-import { createSortTemplate } from '../templates/sort-template';
+import AbstractView from '../framework/view/abstract-view.js';
+import { createSortTemplate } from '../templates/sort-template.js';
 
 export default class SortView extends AbstractView {
-  #sortTypes = null;
-  #currentSortType = null;
-  #handleSortTypeChange = null;
 
-  constructor({ sortTypes, currentSortType, onSortTypeChange }) {
+  #types = null;
+  #selected = null;
+  #handleTypeChange = null;
+
+  constructor({ types, selected, onTypeChanged }) {
     super();
-    this.#sortTypes = sortTypes;
-    this.#currentSortType = currentSortType;
-    this.#handleSortTypeChange = onSortTypeChange;
-
-    this.element.addEventListener('change', this.#sortTypeChangeHandler);
+    this.#types = types;
+    this.#selected = selected;
+    this.#handleTypeChange = onTypeChanged;
+    this.element.addEventListener('change', this.#typeChangeHandler);
   }
 
   get template() {
-    return createSortTemplate(this.#sortTypes, this.#currentSortType);
+    return createSortTemplate(this.#types, this.#selected);
   }
 
-  #sortTypeChangeHandler = (event) => {
-    event.preventDefault();
-    this.#handleSortTypeChange(event.target.value.split('-')[1]);
+  #typeChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleTypeChange(evt.target.dataset.sortType);
   };
 }

@@ -1,49 +1,58 @@
-import { RenderPosition, remove, render, replace } from '../framework/render';
+import { SortTypes } from '../const';
+import { render, replace, remove, RenderPosition } from '../framework/render';
+import { sort } from '../utils';
 import TripInfoView from '../view/trip-info-view';
 
 export default class TripInfoPresenter {
   #container = null;
-  #points = null;
-  #destinations = null;
-  #offers = null;
+
   #destinationsModel = null;
+  #pointsModel = null;
   #offersModel = null;
-  #tripInfoComponent = null;
-  constructor({ container, destinationsModel, offersModel }) {
+
+  #tripInfoView = null;
+
+  constructor({ container, pointsModel, destinationsModel, offersModel }) {
     this.#container = container;
+    this.#pointsModel = pointsModel;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
+    this.#pointsModel.addObserver(this.#pointsModelEventHandler);
   }
 
-  init(points) {
-    this.#points = points;
-    this.#destinations = [...this.#destinationsModel.destinations];
-    this.#offers = [...this.#offersModel.offers];
-
-    if (this.#points.length === 0) {
-      remove(this.#tripInfoComponent);
-      this.#tripInfoComponent = null;
+  init() {
+    const points = this.#pointsModel.get();
+    if (points.length === 0) {
+      remove(this.#tripInfoView);
+      this.#tripInfoView = null;
       return;
     }
-
-    const previousTripInfoComponent = this.#tripInfoComponent;
-
-    this.#tripInfoComponent = new TripInfoView({
-      destinations: this.#destinations,
-      offers: this.#offers,
-      points: this.#points
-    });
-
-    if (previousTripInfoComponent === null) {
-      render(this.#tripInfoComponent, this.#container, RenderPosition.AFTERBEGIN);
+    const prevTripInfoView = this.#tripInfoView;
+    this.#tripInfoView = new TripInfoView(this.#createPointsInfo(points));
+    if (prevTripInfoView === null) {
+      render(this.#tripInfoView, this.#container, RenderPosition.AFTERBEGIN);
+      return;
     }
-    else {
-      replace(this.#tripInfoComponent, previousTripInfoComponent);
-      remove(previousTripInfoComponent);
-    }
+    replace(this.#tripInfoView, prevTripInfoView);
+    remove(prevTripInfoView);
   }
 
-  destroy() {
-    remove(this.#tripInfoComponent);
+  #createPointsInfo(points) {
+    const sortedPoints = sort[SortTypes.DAY](points);
+    const shortHeader = sortedPoints.length > 3;
+    return {
+      short: shortHeader,
+      destinations: (shortHeader ? [sortedPoints[0], sortedPoints[sortedPoints.length - 1]] : sortedPoints)
+        .map((point) => this.#destinationsModel.getById(point.destination).name),
+      dateFrom: sortedPoints[0].dateFrom,
+      dateTo: sortedPoints[sortedPoints.length - 1].dateTo,
+      totalCost: sortedPoints.reduce(
+        (totalCost, point) => totalCost + point.basePrice + point.offers.reduce(
+          (totalOffersCost, offerId) => totalOffersCost + this.#offersModel.getByTypeAndId(point.type, offerId).price, 0), 0)
+    };
   }
+
+  #pointsModelEventHandler = () => {
+    this.init();
+  };
 }

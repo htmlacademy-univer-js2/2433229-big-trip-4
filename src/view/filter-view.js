@@ -1,29 +1,25 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { createFilterTemplate } from '../templates/filter-template.js';
+
 export default class FilterView extends AbstractView {
   #activeFilters = [];
-  #selectedFilter = null;
+  #selected = null;
   #handleFilterTypeChange = null;
 
-  #filterTypeChangeHandler = (event) => {
-    event.preventDefault();
-    this.#handleFilterTypeChange?.(event.target.dataset.filterType);
-  };
-
-  constructor({activeFilters, selectedFilter, onFilterTypeChange}) {
+  constructor({ activeFilters, selectedFilter, onFilterTypeChange }) {
     super();
     this.#activeFilters = activeFilters;
-    this.#selectedFilter = selectedFilter;
-
+    this.#selected = selectedFilter;
     this.#handleFilterTypeChange = onFilterTypeChange;
-
-    this.element.addEventListener('change', this.#filterTypeChangeHandler);
+    this.element.addEventListener('change', this.#FilterTypeChangeHandler);
   }
 
+  #FilterTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFilterTypeChange(evt.target.dataset.filterType);
+  };
+
   get template() {
-    return createFilterTemplate({
-      activeFilters: this.#activeFilters,
-      selectedFilter: this.#selectedFilter
-    });
+    return createFilterTemplate({ activeFilters: this.#activeFilters, selected: this.#selected });
   }
 }

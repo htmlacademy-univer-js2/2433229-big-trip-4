@@ -1,10 +1,19 @@
-import { FilterTypes } from '../const.js';
-import { createFilterItemTemplate } from './filter-item-template.js';
+import { capitalizeFirstLetter } from '../utils.js';
+import { FilterType } from '../const.js';
 
-export function createFilterTemplate({ activeFilters, selectedFilter }) {
-  return (`<form class="trip-filters" action="#" method="get">
-      ${Object.values(FilterTypes).map((filter) => createFilterItemTemplate(filter, activeFilters.includes(filter), filter === selectedFilter)).join('')}
+export function createFilterTemplate({ activeFilters, selected }) {
+  return `
+    <form class="trip-filters" action="#" method="get">
+      ${Object.values(FilterType).map((filter) => createFilter(filter, activeFilters.includes(filter), filter === selected)).join('')}
       <button class="visually-hidden" type="submit">Accept filter</button>
-    </form>`
-  );
+    </form>`;
+
+  function createFilter(filter, enabled, checked) {
+    return `
+      <div class="trip-filters__filter">
+        <input id="filter-${filter}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter"
+          data-filter-type="${filter}" value="${filter}" ${enabled ? '' : 'disabled'} ${checked ? 'checked' : ''}>
+        <label class="trip-filters__filter-label" for="filter-${filter}">${capitalizeFirstLetter(filter)}</label>
+      </div>`;
+  }
 }

@@ -1,174 +1,68 @@
-import { SortTypes, SortingOptions } from './const';
+import { FilterType, SortTypes } from './const';
 import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import relativeTime from 'dayjs/plugin/relativeTime';
+import duration from 'dayjs/plugin/duration.js';
 
 dayjs.extend(duration);
-dayjs.extend(relativeTime);
 
-const TimePeriods = {
-  MSEC_IN_SEC : 1000,
-  SEC_IN_MIN : 60,
-  MIN_IN_HOUR : 60,
-  HOUR_IN_DAY : 24,
-  MSEC_IN_HOUR : 60 * 60 * 1000,
-  MSEC_IN_DAY : 24 * 60 * 60 * 1000,
+export function capitalizeFirstLetter(string) {
+  return `${string[0].toUpperCase()}${string.slice(1)}`;
+}
+
+export const isPointPast = (point) => dayjs().isAfter(point.dateTo);
+export const isPointPresent = (point) => dayjs().isBefore(point.dateTo) && dayjs().isAfter(point.dateFrom);
+export const isPointFuture = (point) => dayjs().isBefore(point.dateFrom);
+
+export const filter = {
+  [FilterType.EVERYTHING]: (points) => [...points],
+  [FilterType.PAST]: (points) => points.filter((point) => isPointPast(point)),
+  [FilterType.PRESENT]: (points) => points.filter((point) => isPointPresent(point)),
+  [FilterType.FUTURE]: (points) => points.filter((point) => isPointFuture(point)),
 };
 
-function getRandomInteger(a = 0, b = 1) {
-  const lower = Math.ceil(Math.min(a, b));
-  const upper = Math.floor(Math.max(a, b));
+export const filterByPointType = {
+  [FilterType.EVERYTHING]: (points) => points.length,
+  [FilterType.PAST]: (points) => points.some((point) => isPointPast(point)),
+  [FilterType.PRESENT]: (points) => points.some((point) => isPointPresent(point)),
+  [FilterType.FUTURE]: (points) => points.some((point) => isPointFuture(point)),
+};
 
-  return Math.floor(lower + Math.random() * (upper - lower + 1));
-}
-
-function getRandomValue(items) {
-  return items[getRandomInteger(0, items.length - 1)];
-}
-
-function isEscapeButton (evt) {
-  return evt.key === 'Escape';
-}
-
-function getFullDate(date) {
-  return dayjs(date).format('YY/MM/DD HH:mm');
-}
-
-function getMonthAndDay(date) {
+export function formatDateToShortDate(date) {
   return dayjs(date).format('MMM DD');
 }
 
-function getTime(date) {
+export function formatDateToDateTime(date) {
+  return dayjs(date).format('DD/MM/YY HH:mm');
+}
+
+export function formatDateToDateTimeHTML(date) {
+  return dayjs(date).format('YYYY-MM-DDTHH:mm');
+}
+
+export function formatDateToTime(date) {
   return dayjs(date).format('HH:mm');
 }
 
-function getPointDuration(point) {
-  const timeDiff = dayjs(point.dateTo).diff(dayjs(point.dateFrom));
-
-  let pointDuration = 0;
-
-  switch (true) {
-    case (timeDiff >= TimePeriods.MSEC_IN_DAY):
-      pointDuration = dayjs.duration(timeDiff).format('DD[D] HH[H] mm[M]');
-      break;
-    case (timeDiff >= TimePeriods.MSEC_IN_HOUR):
-      pointDuration = dayjs.duration(timeDiff).format('HH[H] mm[M]');
-      break;
-    case (timeDiff < TimePeriods.MSEC_IN_HOUR):
-      pointDuration = dayjs.duration(timeDiff).format('mm[M]');
-      break;
-  }
-
-  return pointDuration;
+export function formatDuration(dateFrom, dateTo) {
+  const timeDiff = dayjs.duration(dayjs(dateTo).diff(dateFrom));
+  const asDays = Math.floor(timeDiff.asDays());
+  const asHours = Math.floor(timeDiff.asHours());
+  const pointDuration = [
+    asDays > 0 ? `${String(asDays).padStart(2, '0')}D ` : '',
+    asHours > 0 ? `${String(timeDiff.hours()).padStart(2, '0')}H ` : '',
+    `${String(timeDiff.minutes()).padStart(2, '0')}M`
+  ];
+  return pointDuration.join('');
 }
+export const getDateDifference = (pointA, pointB) => dayjs(pointB.dateFrom).diff(dayjs(pointA.dateFrom));
+export const getDurationDifference = (pointA, pointB) => (dayjs(pointB.dateTo).diff(dayjs(pointB.dateFrom))) - (dayjs(pointA.dateTo).diff(dayjs(pointA.dateFrom)));
+export const getPriceDifference = (pointA, pointB) => pointB.basePrice - pointA.basePrice;
 
+export const sort = {
+  [SortTypes.DAY]: (points) => [...points].sort(getDateDifference).reverse(),
+  [SortTypes.TIME]: (points) => [...points].sort(getDurationDifference),
+  [SortTypes.PRICE]: (points) => [...points].sort(getPriceDifference)
+};
 
-function isPointPast(point) {
-  return dayjs().isAfter(point.dateTo);
+export function isBigDifference(pointA, pointB) {
+  return pointA.dateFrom !== pointB.dateFrom || pointA.basePrice !== pointB.basePrice || getDurationDifference(pointA, pointB) !== 0;
 }
-
-function isPointPresent(point) {
-  return dayjs().isBefore(point.dateTo) && dayjs().isAfter(point.dateFrom);
-}
-
-function isPointFuture(point) {
-  return dayjs().isBefore(point.dateFrom);
-}
-
-function updatePoint(points, update) {
-  return points.map((point) => point.id === update.id ? update : point);
-}
-
-function sortByDay(pointA, pointB) {
-  return new Date(pointA.dateFrom) - new Date(pointB.dateFrom);
-}
-
-function sortByEvent(pointA, pointB) {
-  return (pointA.type.toLowerCase()).localeCompare(pointB.type.toLowerCase());
-}
-
-function sortByTime(pointA, pointB) {
-  const durationA = pointA.dateTo - pointA.dateFrom;
-  const durationB = pointB.dateTo - pointB.dateFrom;
-
-  return durationB - durationA;
-}
-
-function sortByPrice(pointA, pointB) {
-  return pointB.price - pointA.price;
-}
-
-function sortByOffers(pointA, pointB) {
-  return pointA.offers.length - pointB.offers.length;
-}
-
-function isBigDifference(pointA, pointB) {
-  return pointA.dateFrom !== pointB.dateFrom || pointA.price !== pointB.price || sortByTime(pointA, pointB) !== 0;
-}
-
-function adaptToClient(point) {
-  const adaptedPoint = {
-    ...point,
-    price: point['base_price'],
-    dateFrom: point['date_from'] !== null ? new Date(point['date_from']) : point['date_from'],
-    dateTo: point['date_to'] !== null ? new Date(point['date_to']) : point['date_to'],
-    isFavorite: point['is_favorite']
-  };
-
-  delete adaptedPoint['base_price'];
-  delete adaptedPoint['date_from'];
-  delete adaptedPoint['date_to'];
-  delete adaptedPoint['is_favorite'];
-  return adaptedPoint;
-}
-
-function adaptToServer(point) {
-  const adaptedPoint = {
-    ...point,
-    ['base_price']: Number(point.price),
-    ['date_from']: point.dateFrom instanceof Date ? point.dateFrom.toISOString() : null,
-    ['date_to']: point.dateTo instanceof Date ? point.dateTo.toISOString() : null,
-    ['is_favorite']: point.isFavorite
-  };
-
-  delete adaptedPoint.price;
-  delete adaptedPoint.dateFrom;
-  delete adaptedPoint.dateTo;
-  delete adaptedPoint.isFavorite;
-  return adaptedPoint;
-}
-
-function getTripInfoTitle(points = [], destinations = []) {
-  const tripDestinations = SortingOptions[SortTypes.DAY]([...points]).map((point) => destinations.find((destination) => destination.id === point.destination).name);
-  if (tripDestinations.length <= 3) {
-    return tripDestinations.join('&nbsp;&mdash;&nbsp;');
-  }
-  else {
-    return`${tripDestinations.at(0)}&nbsp;&mdash;&nbsp;...&nbsp;&mdash;&nbsp;${tripDestinations.at(-1)}`;
-  }
-}
-
-function getTripInfoDuration(points = []) {
-  const sortedPoints = SortingOptions[SortTypes.DAY]([...points]);
-  if (sortedPoints.length > 0) {
-    return `${dayjs(sortedPoints.at(0).dateFrom).format('DD MMM')}&nbsp;&mdash;&nbsp;${dayjs(sortedPoints.at(-1).dateFrom).format('DD MMM')}`;
-  }
-  else {
-    return '';
-  }
-}
-
-function getTripOffersCost(offerIds = [], offers = []) {
-  const offersMap = new Map(offers.map((offer) => [offer.id, offer.price]));
-  return offerIds.reduce((cost, id) => cost + (offersMap.get(id) || 0), 0);
-}
-
-function getTripInfoCost(points = [], offers = []) {
-  const offersMap = new Map(offers.map((offer) => [offer.type, offer.offers]));
-  return points.reduce((cost, point) => {
-    const pointOffers = offersMap.get(point.type) || [];
-    return cost + point.price + getTripOffersCost(point.offers, pointOffers);
-  }, 0);
-}
-
-export {getRandomInteger, getRandomValue, getFullDate, getMonthAndDay, getTime, getPointDuration, isPointFuture, isPointPresent, isPointPast, updatePoint, sortByDay, sortByTime, sortByPrice, sortByEvent, sortByOffers, isBigDifference, adaptToClient, adaptToServer, isEscapeButton, getTripInfoTitle, getTripInfoDuration, getTripInfoCost};
